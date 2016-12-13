@@ -1,74 +1,36 @@
-// Reference: http://karma-runner.github.io/0.13/config/configuration-file.html
-module.exports = function karmaConfig (config) {
+var webpackCfg = require('./webpack.config');
+
+// Set node environment to testing
+process.env.NODE_ENV = 'test';
+
+module.exports = function(config) {
   config.set({
-    frameworks: [
-      // Reference: https://github.com/karma-runner/karma-mocha
-      // Set framework to mocha
-      'mocha'
-    ],
-
-    reporters: [
-      // Reference: https://github.com/mlex/karma-spec-reporter
-      // Set reporter to print detailed results to console
-      'spec',
-
-      // Reference: https://github.com/karma-runner/karma-coverage
-      // Output code coverage files
-      'coverage'
-    ],
-
+    basePath: '',
+    browsers: [ 'PhantomJS' ],
     files: [
-      // Reference: https://www.npmjs.com/package/phantomjs-polyfill
-      // Needed because React.js requires bind and phantomjs does not support it
-      'node_modules/phantomjs-polyfill/bind-polyfill.js',
-
-      // Grab all files in the tests directory that contain _test.
-      'tests/**/*_test.*'
+      'test/loadtests.js'
     ],
-
-    preprocessors: {
-      // Reference: http://webpack.github.io/docs/testing.html
-      // Reference: https://github.com/webpack/karma-webpack
-      // Convert files with webpack and load sourcemaps
-      'tests/**/*_test.*': ['webpack', 'sourcemap'],
-      'app/**/*.*': 'coverage'
+    port: 8000,
+    captureTimeout: 60000,
+    frameworks: [ 'mocha', 'chai' ],
+    client: {
+      mocha: {}
     },
-
-    browsers: [
-      // Run tests using PhantomJS
-      'PhantomJS'
-    ],
-
     singleRun: true,
-
-    // Configure code coverage reporter
-    coverageReporter: {
-      reporters: [
-          // generates ./coverage/lcov.info
-          {
-            type: 'lcovonly',
-            subdir: '.'
-          },
-          // generates ./coverage/coverage-final.json
-          {
-            type: 'json',
-            subdir: '.'
-          },
-          // generates ./coverage/index.html
-          {
-            type: 'html',
-            subdir: '.'
-          }
-      ]
+    reporters: [ 'mocha', 'coverage' ],
+    preprocessors: {
+      'test/loadtests.js': [ 'webpack', 'sourcemap' ]
     },
-
-    // Test webpack config
-    webpack: require('./webpack.config.js'),
-
-    // Hide webpack build information from output
-    webpackMiddleware: {
+    webpack: webpackCfg,
+    webpackServer: {
       noInfo: true
+    },
+    coverageReporter: {
+      dir: 'coverage/',
+      reporters: [
+        { type: 'html' },
+        { type: 'text' }
+      ]
     }
   });
 };
-
